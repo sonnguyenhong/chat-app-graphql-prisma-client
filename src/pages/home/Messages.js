@@ -1,6 +1,6 @@
 import React, {useEffect, Fragment, useState} from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {gql, useQuery, useLazyQuery, useMutation } from '@apollo/client'
+import {gql, useQuery, useLazyQuery, useMutation, useSubscription } from '@apollo/client'
 import {faPaperPlane} from '@fortawesome/free-regular-svg-icons'
 import {Col, Form} from 'react-bootstrap';
 
@@ -32,6 +32,18 @@ const GET_MESSAGES = gql`
     }
 `
 
+const SEND_MESSAGE_SUBCRIPTION = gql`
+    subscription OnSendMessage($username: String!) {
+        newMessage(username: $username) {
+            id 
+            content
+            from
+            to
+            createdAt
+        }
+    }
+`
+
 export default function Messages() { 
 
     const {users} = useMessageState()
@@ -44,14 +56,15 @@ export default function Messages() {
 
     const [getMessages, {loading: messagesLoading, data: messagesData}] = useLazyQuery(GET_MESSAGES)
     const [sendMessage] = useMutation(SEND_MESSAGE, {
-        onCompleted: data => {
-            return dispatch({type: 'ADD_MESSAGE', payload: {
-                username: selectedUser.username,
-                message: data.sendMessage
-            }})
-        },
+        // onCompleted: data => {
+        //     return dispatch({type: 'ADD_MESSAGE', payload: {
+        //         username: selectedUser.username,
+        //         message: data.sendMessage
+        //     }})
+        // },
         onError: err => console.log(err)
     })
+    
 
     useEffect(() => {
         if(selectedUser && !selectedUser?.messages) {
