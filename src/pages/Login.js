@@ -36,7 +36,7 @@ export default function Register() {
         },
         onCompleted(data) {
             dispatch({type: 'LOGIN', payload: data.login})
-            history('/')
+            window.location.href = '/'
         }
     })
 

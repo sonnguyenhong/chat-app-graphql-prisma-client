@@ -1,23 +1,57 @@
 import React, { Fragment, useEffect, useState } from 'react'
 import {Row, Col, Button, Image} from 'react-bootstrap';
 import {Link, useNavigate} from 'react-router-dom'
-import {gql, useQuery, useLazyQuery } from '@apollo/client'
+import {gql, useSubscription } from '@apollo/client'
 
-import { useAuthDispatch } from '../../context/auth';
+import { useAuthDispatch, useAuthState } from '../../context/auth';
+import { useMessageDispatch } from '../../context/message'
 
 import Users from './Users'
 import Messages from './Messages'
 
+const NEW_MESSAGE = gql`
+    subscription newMessage {
+        newMessage {
+            id
+            from
+            to
+            content
+            createdAt
+        }
+    }
+`
 
 
+export default function Home({history}) {
+    // const history = useNavigate()
+    const authDispatch = useAuthDispatch()
+    const messageDispatch = useMessageDispatch()
 
-export default function Home() {
-    const history = useNavigate()
-    const dispatch = useAuthDispatch()
+    const { user } = useAuthState()
 
+    const { data: messageData, error: messageError } = useSubscription(NEW_MESSAGE)
+
+    useEffect(() => {
+        if(messageError) {
+            console.log(messageError)
+        }
+
+        if(messageData) {
+            const message = messageData.newMessage
+            const otherUser = user.username === message.to ? message.from : message.to
+
+            messageDispatch({
+                type: 'ADD_MESSAGE', 
+                payload: {
+                    username: otherUser,
+                    message
+                }
+            })
+        }
+    }, [messageError, messageData])
 
     const logout = () => {
-        dispatch({type: 'LOGOUT'})
+        authDispatch({type: 'LOGOUT'})
         window.location.href = '/login'
     }   
     

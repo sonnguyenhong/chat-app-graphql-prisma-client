@@ -33,6 +33,7 @@ export default function Users( ) {
     })
     let usersMarkup
     if(!users || loading) {
+        // console.log(users)
         usersMarkup = <p>Loading ...</p>
     } else if(users.length === 0) {
         usersMarkup = <p>No users</p>
