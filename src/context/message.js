@@ -7,7 +7,7 @@ const MessageDispatchContext = createContext()
 const messageReducer = (state, action) => {
     let usersCopy, userIndex
     console.log('state', state)
-    const {username, message, messages} = action.payload
+    const {username, message, messages, reaction} = action.payload
     switch(action.type) {
         case 'SET_USERS':
             return {
@@ -41,7 +41,8 @@ const messageReducer = (state, action) => {
         case 'ADD_MESSAGE':
             usersCopy = [...state.users]
             userIndex = usersCopy.findIndex((u) => u.username === username)
-            console.log('index', usersCopy[userIndex])
+
+            message.reactions = []
             let updateUser = {
                 ...usersCopy[userIndex],
                 messages: usersCopy[userIndex].messages ? [message, ...usersCopy[userIndex].messages] : null,
@@ -53,6 +54,48 @@ const messageReducer = (state, action) => {
                 ...state,
                 users: usersCopy
             }
+        
+        case 'ADD_REACTION':
+            usersCopy = [...state.users]
+            userIndex = usersCopy.findIndex(user => user.username === username)
+
+            // Make a copy of user
+            let userCopy = {...usersCopy[userIndex]}
+
+            // Find the index of the message that this reaction pertains to 
+            const messageIndex = userCopy.messages?.findIndex(m => m.id === reaction.message.id)
+
+            if(messageIndex > -1) {
+                // Make a copy of user messages 
+                let messagesCopy = [...userCopy.messages]
+
+                // Make a copy of user message reactions
+                let reactionsCopy = [...messagesCopy[messageIndex].reactions]
+
+                const reactionIndex = reactionsCopy.findIndex(r => r.id === reaction.id)
+
+                if(reactionIndex > -1) {
+                    // Reaction exists, update it
+                    reactionsCopy[reactionIndex] = reaction
+                } else {
+                    // New reaction, add it
+                    reactionsCopy = [...reactionsCopy, reaction]
+                }
+
+                messagesCopy[messageIndex] = {
+                    ...messagesCopy[messageIndex],
+                    reactions: reactionsCopy
+                }
+
+                userCopy = { ...userCopy, messages: messagesCopy }
+                usersCopy[userIndex] = userCopy
+            }
+
+            return {
+                ...state,
+                users: usersCopy
+            }
+
 
         default: 
             throw new Error(`Unknown action type: ${action.type}`)
