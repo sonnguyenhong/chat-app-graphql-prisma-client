@@ -60,3 +60,32 @@ body {
         cursor: pointer;
     }
 }
+
+.react-btn-popover {
+    height: 30px;
+}
+
+.react-icon-btn {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    padding-top: 0;
+    padding-bottom: 0;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: 0.25s;
+}
+.react-icon-btn:hover {
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+.btn:focus {
+    box-shadow: none;
+}
+
+.reactions-div {
+    position: absolute;
+    right: -10px;
+    bottom: -25px;
+    font-size: 0.9rem;
+}
